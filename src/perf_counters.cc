@@ -143,10 +143,10 @@ PerfCounters PerfCounters::Create(
 
   for (size_t i=0;i<counter_names.size();i++) {
     if (counter_names[i]=="INSTRUCTIONS") {
-      counter_ids[i]=1; //MT_CORE_INSTR: the index in the syscall result array for the instruction counter
+      counter_ids[i]=0; //MT_CORE_INSTR: the index in the syscall result array for the instruction counter
     }
     else if (counter_names[i]=="CYCLES") {
-      counter_ids[i]=0; //MT_CORE_CYCLES: the index  in the syscall result array for the cycles counter
+      counter_ids[i]=1; //MT_CORE_CYCLES: the index  in the syscall result array for the cycles counter
     } else {
       GetErrorLogInstance()
           << "Unknown counter "
