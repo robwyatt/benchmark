@@ -37,7 +37,6 @@
 #include <string>
 #include <thread>
 #include <utility>
-
 #include "check.h"
 #include "colorprint.h"
 #include "commandlineflags.h"
@@ -118,6 +117,20 @@ BenchmarkReporter::Run CreateRunReport(
 void RunInThread(const BenchmarkInstance* b, IterationCount iters,
                  int thread_id, ThreadManager* manager,
                  PerfCountersMeasurement* perf_counters_measurement) {
+
+#if defined(BENCHMARK_OS_MACOSX)
+  //get the thread QOS
+  qos_class_t tc;
+  int rel;
+  pthread_get_qos_class_np(pthread_self(),&tc,&rel);
+
+  if ((FLAGS_benchmark_qos>=0) && (FLAGS_benchmark_qos<=4))
+  {
+    qos_class_t qos_levels[]={QOS_CLASS_BACKGROUND,QOS_CLASS_UTILITY,QOS_CLASS_DEFAULT,QOS_CLASS_USER_INITIATED,QOS_CLASS_USER_INTERACTIVE};
+    pthread_set_qos_class_self_np(qos_levels[FLAGS_benchmark_qos],0);
+  }
+#endif
+
   internal::ThreadTimer timer(
       b->measure_process_cpu_time()
           ? internal::ThreadTimer::CreateProcessCpuTime()
@@ -137,6 +150,12 @@ void RunInThread(const BenchmarkInstance* b, IterationCount iters,
     results.complexity_n += st.complexity_length_n();
     internal::Increment(&results.counters, st.counters);
   }
+
+#if defined(BENCHMARK_OS_MACOSX)
+  //reset the thread QOS
+  pthread_set_qos_class_self_np(tc,rel);
+#endif
+
   manager->NotifyThreadComplete();
 }
 

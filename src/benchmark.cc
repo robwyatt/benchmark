@@ -132,6 +132,10 @@ BM_DEFINE_kvpairs(benchmark_context, {});
 // Valid values are 'ns', 'us', 'ms' or 's'
 BM_DEFINE_string(benchmark_time_unit, "");
 
+// QOS/Priority of the benchmark thread.
+// This becomes more important with P/E cores on Apple Silicon and newer Intel cpus
+BM_DEFINE_int32(benchmark_qos, -1);
+
 // The level of verbose logging to output
 BM_DEFINE_int32(v, 0);
 
@@ -587,6 +591,7 @@ void PrintUsageAndExit() {
             "          [--benchmark_counters_tabular={true|false}]\n"
             "          [--benchmark_context=<key>=<value>,...]\n"
             "          [--benchmark_time_unit={ns|us|ms|s}]\n"
+            "          [--benchmark_qos=<qos_level>]\n"
             "          [--v=<verbosity>]\n");
   }
   exit(0);
@@ -620,6 +625,8 @@ void ParseCommandLineFlags(int* argc, char** argv) {
                         &FLAGS_benchmark_min_warmup_time) ||
         ParseInt32Flag(argv[i], "benchmark_repetitions",
                        &FLAGS_benchmark_repetitions) ||
+        ParseInt32Flag(argv[i], "benchmark_qos",
+                       &FLAGS_benchmark_qos) ||
         ParseBoolFlag(argv[i], "benchmark_enable_random_interleaving",
                       &FLAGS_benchmark_enable_random_interleaving) ||
         ParseBoolFlag(argv[i], "benchmark_report_aggregates_only",
